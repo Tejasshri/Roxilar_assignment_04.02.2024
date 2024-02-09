@@ -4,11 +4,60 @@ const { open } = require("sqlite");
 const path = require("path");
 const cors = require("cors");
 
-const port =  3001;
+const port = 3001;
 const app = express();
 app.use(cors());
 const dbPath = path.join(__dirname, "salesDatabase.db");
 let db;
+
+async function insertDataIntoDatabase() {
+  try {
+    await db.exec(`
+    CREATE TABLE IF NOT EXISTS salesData (     
+        id INT PRIMARY KEY, 
+        title TEXT,
+        price INT,
+        description TEXT,
+        category TEXT,
+        image TEXT,
+        sold BOOLEAN,
+        dateOfSale TEXT
+    );
+    `);
+    const response = await fetch(
+      "https://s3.amazonaws.com/roxiler.com/product_transaction.json"
+    );
+    const data = await response.json();
+    data.reverse();
+    for (let item of data) {
+      const {
+        id,
+        title,
+        price,
+        description,
+        category,
+        image,
+        sold,
+        dateOfSale,
+      } = item;
+      const query = `
+        INSERT INTO salesData VALUES 
+            (
+                ${id},
+                "${title}",
+                ${price},
+                "${description}",
+                "${category}",
+                "${image}",
+                ${sold},
+                "${dateOfSale}"
+            );`;
+      await db.exec(query);
+    }
+  } catch (error) {
+    console.log(error.message);
+  }
+}
 
 const initializeDBAndServer = async () => {
   try {
@@ -16,6 +65,7 @@ const initializeDBAndServer = async () => {
       filename: dbPath,
       driver: sqlite3.Database,
     });
+    await insertDataIntoDatabase(); // For Insert Lastest Data from given Api https://s3.amazonaws.com/roxiler.com/product_transaction.json
     app.listen(port, () => {
       console.log(`Server is running on port ${port}`);
     });
