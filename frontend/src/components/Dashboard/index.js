@@ -10,7 +10,7 @@ import "./index.css";
 import { StatsChart } from "../StatsChart";
 import CategoryChart from "../CategoryChart";
 
-const url = "http://localhost:3001" // "https://backendof.onrender.com"
+const url = "https://backendof.onrender.com";
 
 const monthsData = [
   { monthNo: 1, monthName: "January" },
@@ -295,7 +295,7 @@ class Dashboard extends Component {
               </button>
               &nbsp;-&nbsp;
               <button type="button" onClick={this.next}>
-                Next &gt; 
+                Next &gt;
               </button>
             </div>
             <p>Per Page : 10</p>
